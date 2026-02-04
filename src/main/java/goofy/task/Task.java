@@ -1,3 +1,5 @@
+package goofy.task;
+
 public class Task {
     protected String description;
     protected boolean isDone;
@@ -33,7 +35,7 @@ public class Task {
     /**
      * Returns the description of the task.
      *
-     * @return Task description.
+     * @return goofy.task.Task description.
      */
     public String getDescription() {
         return description;

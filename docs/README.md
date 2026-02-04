@@ -1,4 +1,4 @@
-# Goofy User Guide
+# goofy.Goofy User Guide
 
 // Update the title above to match the actual product name
 
