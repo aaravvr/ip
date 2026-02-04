@@ -22,6 +22,12 @@ public class Goofy {
             + " \\____|\\___/ \\___/|_|  \\__, |\n"
             + "                       |___/ \n";
 
+    private static final int TODO_COMMAND_LENGTH = 5;
+    private static final int DEADLINE_COMMAND_LENGTH = 9;
+    private static final int EVENT_COMMAND_LENGTH = 6;
+    private static final int MARK_COMMAND_LENGTH = 5;
+    private static final int UNMARK_COMMAND_LENGTH = 7;
+
     /**
      * Starts the Goofy chatbot application.
      *
@@ -29,7 +35,14 @@ public class Goofy {
      */
     public static void main(String[] args) {
         showWelcome();
+        runCommandLoop();
+        showGoodbye();
+    }
 
+    /**
+     * Runs the main command loop that processes user input.
+     */
+    private static void runCommandLoop() {
         ArrayList<Task> tasks = new ArrayList<>();
         Scanner in = new Scanner(System.in);
 
@@ -39,27 +52,36 @@ public class Goofy {
 
             if (input.equalsIgnoreCase("bye")) {
                 break;
-            } else if (input.equalsIgnoreCase("list")) {
-                showTaskList(tasks);
-            } else if (input.startsWith("mark ")) {
-                markTaskAsDone(tasks, input);
-            } else if (input.startsWith("unmark ")) {
-                unmarkTask(tasks, input);
-            } else if (input.startsWith("todo ")) {
-                addTodoTask(tasks, input);
-            } else if (input.startsWith("deadline ")) {
-                addDeadlineTask(tasks, input);
-            } else if (input.startsWith("event ")) {
-                addEventTask(tasks, input);
-            } else {
-                System.out.println(INDENT + LINE);
-                System.out.println(INDENT + "I don't understand that command!");
-                System.out.println(INDENT + LINE);
             }
+
+            processCommand(tasks, input);
         }
 
-        showGoodbye();
         in.close();
+    }
+
+    /**
+     * Processes a single command from the user.
+     *
+     * @param tasks List of tasks.
+     * @param input User input command.
+     */
+    private static void processCommand(ArrayList<Task> tasks, String input) {
+        if (input.equalsIgnoreCase("list")) {
+            showTaskList(tasks);
+        } else if (input.startsWith("mark ")) {
+            markTaskAsDone(tasks, input);
+        } else if (input.startsWith("unmark ")) {
+            unmarkTask(tasks, input);
+        } else if (input.startsWith("todo ")) {
+            addTodoTask(tasks, input);
+        } else if (input.startsWith("deadline ")) {
+            addDeadlineTask(tasks, input);
+        } else if (input.startsWith("event ")) {
+            addEventTask(tasks, input);
+        } else {
+            showUnknownCommandMessage();
+        }
     }
 
     /**
@@ -78,6 +100,15 @@ public class Goofy {
         System.out.println(INDENT + LINE);
         System.out.println(INDENT + "Bye. Hope to see you again soon!");
         System.out.print(INDENT + LINE);
+    }
+
+    /**
+     * Displays an unknown command error message.
+     */
+    private static void showUnknownCommandMessage() {
+        System.out.println(INDENT + LINE);
+        System.out.println(INDENT + "I don't understand that command!");
+        System.out.println(INDENT + LINE);
     }
 
     /**
@@ -101,11 +132,9 @@ public class Goofy {
      * @param input User input containing the todo description.
      */
     private static void addTodoTask(ArrayList<Task> tasks, String input) {
-        String description = input.substring(5).trim();
+        String description = input.substring(TODO_COMMAND_LENGTH).trim();
         if (description.isEmpty()) {
-            System.out.println(INDENT + LINE);
-            System.out.println(INDENT + "The description of a todo cannot be empty.");
-            System.out.println(INDENT + LINE);
+            showEmptyDescriptionError("todo");
             return;
         }
         Task task = new Todo(description);
@@ -120,22 +149,21 @@ public class Goofy {
      * @param input User input containing the deadline description and due date.
      */
     private static void addDeadlineTask(ArrayList<Task> tasks, String input) {
-        String details = input.substring(9).trim();
+        String details = input.substring(DEADLINE_COMMAND_LENGTH).trim();
         if (!details.contains("/by")) {
-            System.out.println(INDENT + LINE);
-            System.out.println(INDENT + "Please use the format: deadline <description> /by <date>");
-            System.out.println(INDENT + LINE);
+            showFormatError("deadline <description> /by <date>");
             return;
         }
+
         String[] parts = details.split("/by", 2);
         String description = parts[0].trim();
         String by = parts[1].trim();
+
         if (description.isEmpty() || by.isEmpty()) {
-            System.out.println(INDENT + LINE);
-            System.out.println(INDENT + "The description and deadline cannot be empty.");
-            System.out.println(INDENT + LINE);
+            showEmptyFieldsError("description and deadline");
             return;
         }
+
         Task task = new Deadline(description, by);
         tasks.add(task);
         printTaskAdded(task, tasks.size());
@@ -148,24 +176,23 @@ public class Goofy {
      * @param input User input containing the event description, start and end time.
      */
     private static void addEventTask(ArrayList<Task> tasks, String input) {
-        String details = input.substring(6).trim();
+        String details = input.substring(EVENT_COMMAND_LENGTH).trim();
         if (!details.contains("/from") || !details.contains("/to")) {
-            System.out.println(INDENT + LINE);
-            System.out.println(INDENT + "Please use the format: event <description> /from <start> /to <end>");
-            System.out.println(INDENT + LINE);
+            showFormatError("event <description> /from <start> /to <end>");
             return;
         }
+
         String[] parts = details.split("/from", 2);
         String description = parts[0].trim();
         String[] timeParts = parts[1].split("/to", 2);
         String from = timeParts[0].trim();
         String to = timeParts[1].trim();
+
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            System.out.println(INDENT + LINE);
-            System.out.println(INDENT + "The description, start time, and end time cannot be empty.");
-            System.out.println(INDENT + LINE);
+            showEmptyFieldsError("description, start time, and end time");
             return;
         }
+
         Task task = new Event(description, from, to);
         tasks.add(task);
         printTaskAdded(task, tasks.size());
@@ -181,7 +208,7 @@ public class Goofy {
         System.out.println(INDENT + LINE);
         System.out.println(INDENT + "Got it. I've added this task:");
         System.out.println(INDENT + "  " + task);
-        String taskWord = (totalTasks == 1) ? "task"  : "tasks";
+        String taskWord = (totalTasks == 1) ? "task" : "tasks";
         System.out.println(INDENT + "Now you have " + totalTasks + " " + taskWord + " in the list.");
         System.out.println(INDENT + LINE);
     }
@@ -194,22 +221,17 @@ public class Goofy {
      */
     private static void markTaskAsDone(ArrayList<Task> tasks, String input) {
         try {
-            int taskNumber = Integer.parseInt(input.substring(5).trim());
-            if (taskNumber > 0 && taskNumber <= tasks.size()) {
-                tasks.get(taskNumber - 1).markAsDone();
-                System.out.println(INDENT + LINE);
-                System.out.println(INDENT + "Nice! I've marked this task as done:");
-                System.out.println(INDENT + "  " + tasks.get(taskNumber - 1));
-                System.out.println(INDENT + LINE);
-            } else {
-                System.out.println(INDENT + LINE);
-                System.out.println(INDENT + "Invalid task number!");
-                System.out.println(INDENT + LINE);
+            int taskNumber = parseTaskNumber(input, MARK_COMMAND_LENGTH);
+            if (!isValidTaskNumber(taskNumber, tasks.size())) {
+                showInvalidTaskNumberError();
+                return;
             }
+
+            Task task = tasks.get(taskNumber - 1);
+            task.markAsDone();
+            showTaskMarkedAsDone(task);
         } catch (NumberFormatException e) {
-            System.out.println(INDENT + LINE);
-            System.out.println(INDENT + "Please provide a valid task number!");
-            System.out.println(INDENT + LINE);
+            showInvalidTaskNumberFormatError();
         }
     }
 
@@ -221,22 +243,115 @@ public class Goofy {
      */
     private static void unmarkTask(ArrayList<Task> tasks, String input) {
         try {
-            int taskNumber = Integer.parseInt(input.substring(7).trim());
-            if (taskNumber > 0 && taskNumber <= tasks.size()) {
-                tasks.get(taskNumber - 1).markAsNotDone();
-                System.out.println(INDENT + LINE);
-                System.out.println(INDENT + "OK, I've marked this task as not done yet:");
-                System.out.println(INDENT + "  " + tasks.get(taskNumber - 1));
-                System.out.println(INDENT + LINE);
-            } else {
-                System.out.println(INDENT + LINE);
-                System.out.println(INDENT + "Invalid task number!");
-                System.out.println(INDENT + LINE);
+            int taskNumber = parseTaskNumber(input, UNMARK_COMMAND_LENGTH);
+            if (!isValidTaskNumber(taskNumber, tasks.size())) {
+                showInvalidTaskNumberError();
+                return;
             }
+
+            Task task = tasks.get(taskNumber - 1);
+            task.markAsNotDone();
+            showTaskMarkedAsNotDone(task);
         } catch (NumberFormatException e) {
-            System.out.println(INDENT + LINE);
-            System.out.println(INDENT + "Please provide a valid task number!");
-            System.out.println(INDENT + LINE);
+            showInvalidTaskNumberFormatError();
         }
+    }
+
+    /**
+     * Parses the task number from user input.
+     *
+     * @param input User input string.
+     * @param commandLength Length of the command prefix.
+     * @return Task number.
+     * @throws NumberFormatException If the input is not a valid number.
+     */
+    private static int parseTaskNumber(String input, int commandLength) throws NumberFormatException {
+        return Integer.parseInt(input.substring(commandLength).trim());
+    }
+
+    /**
+     * Checks if a task number is valid.
+     *
+     * @param taskNumber Task number to check.
+     * @param totalTasks Total number of tasks.
+     * @return True if valid, false otherwise.
+     */
+    private static boolean isValidTaskNumber(int taskNumber, int totalTasks) {
+        return taskNumber > 0 && taskNumber <= totalTasks;
+    }
+
+    /**
+     * Displays the message when a task is marked as done.
+     *
+     * @param task Task that was marked as done.
+     */
+    private static void showTaskMarkedAsDone(Task task) {
+        System.out.println(INDENT + LINE);
+        System.out.println(INDENT + "Nice! I've marked this task as done:");
+        System.out.println(INDENT + "  " + task);
+        System.out.println(INDENT + LINE);
+    }
+
+    /**
+     * Displays the message when a task is marked as not done.
+     *
+     * @param task Task that was marked as not done.
+     */
+    private static void showTaskMarkedAsNotDone(Task task) {
+        System.out.println(INDENT + LINE);
+        System.out.println(INDENT + "OK, I've marked this task as not done yet:");
+        System.out.println(INDENT + "  " + task);
+        System.out.println(INDENT + LINE);
+    }
+
+    /**
+     * Displays an empty description error message.
+     *
+     * @param taskType Type of task (todo, deadline, event).
+     */
+    private static void showEmptyDescriptionError(String taskType) {
+        System.out.println(INDENT + LINE);
+        System.out.println(INDENT + "The description of a " + taskType + " cannot be empty.");
+        System.out.println(INDENT + LINE);
+    }
+
+    /**
+     * Displays a format error message.
+     *
+     * @param correctFormat The correct format string.
+     */
+    private static void showFormatError(String correctFormat) {
+        System.out.println(INDENT + LINE);
+        System.out.println(INDENT + "Please use the format: " + correctFormat);
+        System.out.println(INDENT + LINE);
+    }
+
+    /**
+     * Displays an empty fields error message.
+     *
+     * @param fields Fields that cannot be empty.
+     */
+    private static void showEmptyFieldsError(String fields) {
+        System.out.println(INDENT + LINE);
+        System.out.println(INDENT + "The " + fields + " cannot be empty.");
+        System.out.println(INDENT + LINE);
+    }
+
+    /**
+     * Displays an invalid task number error message.
+     */
+    private static void showInvalidTaskNumberError() {
+        System.out.println(INDENT + LINE);
+        System.out.println(INDENT + "Invalid task number!");
+        System.out.println(INDENT + LINE);
+    }
+
+    /**
+     * Displays an invalid task number format error message.
+     */
+    private static void showInvalidTaskNumberFormatError() {
+        System.out.println(INDENT + LINE);
+        System.out.println(INDENT + "Please provide a valid task number!");
+        System.out.println(INDENT + LINE);
     }
 }
