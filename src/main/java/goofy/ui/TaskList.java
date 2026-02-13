@@ -1,7 +1,8 @@
-package goofy;
+package goofy.ui;
 
 import java.util.ArrayList;
 
+import goofy.exception.GoofyException;
 import goofy.task.Task;
 
 /**

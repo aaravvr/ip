@@ -1,5 +1,10 @@
 package goofy;
 
+import goofy.exception.GoofyException;
+import goofy.ui.Parser;
+import goofy.ui.TaskList;
+import goofy.ui.Ui;
+
 /**
  * Represents the main entry point for the Goofy chatbot application.
  * Goofy helps users manage their tasks via a command-line interface.

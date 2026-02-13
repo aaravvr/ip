@@ -1,5 +1,6 @@
-package goofy;
+package goofy.ui;
 
+import goofy.exception.GoofyException;
 import goofy.task.Deadline;
 import goofy.task.Event;
 import goofy.task.Task;
