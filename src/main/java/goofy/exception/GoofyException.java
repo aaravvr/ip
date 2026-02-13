@@ -1,4 +1,4 @@
-package goofy;
+package goofy.exception;
 
 /**
  * Represents an exception specific to the Goofy application.
