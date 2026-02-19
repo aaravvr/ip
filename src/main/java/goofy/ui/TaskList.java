@@ -85,6 +85,21 @@ public class TaskList {
     }
 
     /**
+     * Deletes the task at the given one-based task number.
+     *
+     * @param taskNumber One-based task number.
+     * @return The deleted task.
+     * @throws GoofyException If the task number is out of range.
+     */
+    public Task deleteTask(int taskNumber) throws GoofyException {
+        if (!isValidTaskNumber(taskNumber)) {
+            throw new GoofyException("Task number " + taskNumber + "?! That ain't on the list! "
+                    + "I only see " + tasks.size() + " task(s) in there, a-hyuck!");
+        }
+        return tasks.remove(taskNumber - 1);
+    }
+
+    /**
      * Checks if a one-based task number is within the valid range.
      *
      * @param taskNumber One-based task number to check.
