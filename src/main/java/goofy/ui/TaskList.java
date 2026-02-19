@@ -20,6 +20,15 @@ public class TaskList {
     }
 
     /**
+     * Creates a new TaskList with the given list of tasks.
+     *
+     * @param tasks ArrayList of tasks to initialize with.
+     */
+    public TaskList(ArrayList<Task> tasks) {
+        this.tasks = tasks;
+    }
+
+    /**
      * Adds a task to the list.
      *
      * @param task Task to add.
