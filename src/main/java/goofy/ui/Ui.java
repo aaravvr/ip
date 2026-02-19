@@ -135,4 +135,20 @@ public class Ui {
         System.out.println(INDENT + "  " + task);
         System.out.println(INDENT + LINE);
     }
+
+    /**
+     * Displays the message when a task is deleted.
+     *
+     * @param task Task that was deleted.
+     * @param remainingTasks Number of remaining tasks in the list.
+     */
+    public void showTaskDeleted(Task task, int remainingTasks) {
+        System.out.println(INDENT + LINE);
+        System.out.println(INDENT + "A-hyuck! Consider it GONE! I just erased this one:");
+        System.out.println(INDENT + "  " + task);
+        String taskWord = (remainingTasks == 1) ? "task" : "tasks";
+        System.out.println(INDENT + "Now ya got " + remainingTasks + " " + taskWord
+                + " left. One less thing to worry about, pal!");
+        System.out.println(INDENT + LINE);
+    }
 }

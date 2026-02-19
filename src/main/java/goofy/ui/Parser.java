@@ -17,6 +17,7 @@ public class Parser {
     private static final int EVENT_COMMAND_LENGTH = 6;
     private static final int MARK_COMMAND_LENGTH = 5;
     private static final int UNMARK_COMMAND_LENGTH = 7;
+    private static final int DELETE_COMMAND_LENGTH = 7;
 
     /**
      * Parses and executes the given user input command.
@@ -33,6 +34,8 @@ public class Parser {
             parseMark(input, tasks, ui);
         } else if (input.equalsIgnoreCase("unmark") || input.startsWith("unmark ")) {
             parseUnmark(input, tasks, ui);
+        } else if (input.equalsIgnoreCase("delete") || input.startsWith("delete ")) {
+            parseDelete(input, tasks, ui);
         } else if (input.equalsIgnoreCase("todo") || input.startsWith("todo ")) {
             parseTodo(input, tasks, ui);
         } else if (input.equalsIgnoreCase("deadline") || input.startsWith("deadline ")) {
@@ -41,7 +44,8 @@ public class Parser {
             parseEvent(input, tasks, ui);
         } else {
             throw new GoofyException("\"" + input + "\"?? A-hyuck, I have NO idea what that means! "
-                    + "Try one of these instead: todo, deadline, event, list, mark, unmark, bye.");
+                    + "Try one of these instead: todo, deadline, event, list, mark, unmark, "
+                    + "delete, bye.");
         }
     }
 
@@ -179,6 +183,29 @@ public class Parser {
         } catch (NumberFormatException e) {
             throw new GoofyException("A-hyuck, that doesn't look like a number to me! "
                     + "Usage: unmark <task number>");
+        }
+    }
+
+    /**
+     * Parses and executes a delete command.
+     *
+     * @param input User input string.
+     * @param tasks TaskList containing the task to delete.
+     * @param ui Ui instance for displaying results.
+     * @throws GoofyException If the task number is invalid.
+     */
+    private void parseDelete(String input, TaskList tasks, Ui ui) throws GoofyException {
+        if (input.trim().equalsIgnoreCase("delete")) {
+            throw new GoofyException("Delete WHAT exactly?! Give me a number! "
+                    + "Usage: delete <task number>");
+        }
+        try {
+            int taskNumber = Integer.parseInt(input.substring(DELETE_COMMAND_LENGTH).trim());
+            Task deletedTask = tasks.deleteTask(taskNumber);
+            ui.showTaskDeleted(deletedTask, tasks.getSize());
+        } catch (NumberFormatException e) {
+            throw new GoofyException("A-hyuck, that doesn't look like a number to me! "
+                    + "Usage: delete <task number>");
         }
     }
 }
