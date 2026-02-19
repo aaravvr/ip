@@ -1,6 +1,7 @@
 package goofy;
 
 import goofy.exception.GoofyException;
+import goofy.storage.Storage;
 import goofy.ui.Parser;
 import goofy.ui.TaskList;
 import goofy.ui.Ui;
@@ -13,14 +14,24 @@ public class Goofy {
     private final Ui ui;
     private final TaskList tasks;
     private final Parser parser;
+    private final Storage storage;
 
     /**
      * Creates a new Goofy application instance.
      */
     public Goofy() {
         this.ui = new Ui();
-        this.tasks = new TaskList();
+        this.storage = new Storage();
         this.parser = new Parser();
+
+        TaskList loadedTasks;
+        try {
+            loadedTasks = new TaskList(storage.loadTasks());
+        } catch (GoofyException e) {
+            ui.showError(e.getMessage());
+            loadedTasks = new TaskList();
+        }
+        this.tasks = loadedTasks;
     }
 
     /**
@@ -45,6 +56,7 @@ public class Goofy {
 
             try {
                 parser.parseCommand(input, tasks, ui);
+                storage.saveTasks(tasks.getTasks());
             } catch (GoofyException e) {
                 ui.showError(e.getMessage());
             }
