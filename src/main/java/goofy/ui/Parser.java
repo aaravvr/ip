@@ -9,6 +9,7 @@ import goofy.command.AddTodoCommand;
 import goofy.command.Command;
 import goofy.command.DeleteCommand;
 import goofy.command.ExitCommand;
+import goofy.command.FindCommand;
 import goofy.command.FindOnDateCommand;
 import goofy.command.ListCommand;
 import goofy.command.MarkCommand;
@@ -28,6 +29,7 @@ public class Parser {
     private static final int UNMARK_COMMAND_LENGTH = 7;
     private static final int DELETE_COMMAND_LENGTH = 7;
     private static final int DATE_COMMAND_LENGTH = 5;
+    private static final int FIND_COMMAND_LENGTH = 5;
 
     /**
      * Parses the given user input and returns the corresponding command.
@@ -55,10 +57,12 @@ public class Parser {
             return parseEvent(input);
         } else if (input.equalsIgnoreCase("date") || input.startsWith("date ")) {
             return parseDate(input);
+        } else if (input.equalsIgnoreCase("find") || input.startsWith("find ")) {
+            return parseFind(input);
         } else {
             throw new GoofyException("\"" + input + "\"?? A-hyuck, I have NO idea what that means! "
                     + "Try one of these instead: todo, deadline, event, list, mark, unmark, "
-                    + "delete, date, bye.");
+                    + "delete, date, find, bye.");
         }
     }
 
@@ -225,5 +229,25 @@ public class Parser {
             throw new GoofyException("Gawrsh, I can't read that date! "
                     + "Please use yyyy-MM-dd format, e.g. date 2019-12-01");
         }
+    }
+
+    /**
+     * Parses a find command and returns the corresponding command.
+     *
+     * @param input User input string.
+     * @return FindCommand with the parsed keyword.
+     * @throws GoofyException If the keyword is missing.
+     */
+    private Command parseFind(String input) throws GoofyException {
+        if (input.trim().equalsIgnoreCase("find")) {
+            throw new GoofyException("Find WHAT exactly?! Give me a keyword! "
+                    + "Usage: find <keyword>");
+        }
+        String keyword = input.substring(FIND_COMMAND_LENGTH).trim();
+        if (keyword.isEmpty()) {
+            throw new GoofyException("Find WHAT exactly?! Give me a keyword! "
+                    + "Usage: find <keyword>");
+        }
+        return new FindCommand(keyword);
     }
 }
