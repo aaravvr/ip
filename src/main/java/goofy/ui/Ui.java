@@ -1,5 +1,7 @@
 package goofy.ui;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -19,6 +21,8 @@ public class Ui {
             + "| |_| | (_) | (_) |  _| |_| |\n"
             + " \\____|\\___/ \\___/|_|  \\__, |\n"
             + "                       |___/ \n";
+    private static final DateTimeFormatter DISPLAY_FORMAT =
+            DateTimeFormatter.ofPattern("MMM dd yyyy");
 
     private final Scanner scanner;
 
@@ -149,6 +153,27 @@ public class Ui {
         String taskWord = (remainingTasks == 1) ? "task" : "tasks";
         System.out.println(INDENT + "Now ya got " + remainingTasks + " " + taskWord
                 + " left. One less thing to worry about, pal!");
+        System.out.println(INDENT + LINE);
+    }
+
+    /**
+     * Displays all tasks occurring on the given date.
+     *
+     * @param tasks List of tasks matching the date.
+     * @param date The date that was searched.
+     */
+    public void showTasksOnDate(ArrayList<Task> tasks, LocalDate date) {
+        System.out.println(INDENT + LINE);
+        if (tasks.isEmpty()) {
+            System.out.println(INDENT + "A-hyuck! Nothing on " + date.format(DISPLAY_FORMAT)
+                    + "! Enjoy the free day, pal!");
+        } else {
+            System.out.println(INDENT + "Here's what's happenin' on "
+                    + date.format(DISPLAY_FORMAT) + ":");
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println(INDENT + (i + 1) + ". " + tasks.get(i));
+            }
+        }
         System.out.println(INDENT + LINE);
     }
 }

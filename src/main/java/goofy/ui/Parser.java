@@ -1,11 +1,15 @@
 package goofy.ui;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+
 import goofy.command.AddDeadlineCommand;
 import goofy.command.AddEventCommand;
 import goofy.command.AddTodoCommand;
 import goofy.command.Command;
 import goofy.command.DeleteCommand;
 import goofy.command.ExitCommand;
+import goofy.command.FindOnDateCommand;
 import goofy.command.ListCommand;
 import goofy.command.MarkCommand;
 import goofy.command.UnmarkCommand;
@@ -23,6 +27,7 @@ public class Parser {
     private static final int MARK_COMMAND_LENGTH = 5;
     private static final int UNMARK_COMMAND_LENGTH = 7;
     private static final int DELETE_COMMAND_LENGTH = 7;
+    private static final int DATE_COMMAND_LENGTH = 5;
 
     /**
      * Parses the given user input and returns the corresponding command.
@@ -48,10 +53,12 @@ public class Parser {
             return parseDeadline(input);
         } else if (input.equalsIgnoreCase("event") || input.startsWith("event ")) {
             return parseEvent(input);
+        } else if (input.equalsIgnoreCase("date") || input.startsWith("date ")) {
+            return parseDate(input);
         } else {
             throw new GoofyException("\"" + input + "\"?? A-hyuck, I have NO idea what that means! "
                     + "Try one of these instead: todo, deadline, event, list, mark, unmark, "
-                    + "delete, bye.");
+                    + "delete, date, bye.");
         }
     }
 
@@ -195,6 +202,28 @@ public class Parser {
         } catch (NumberFormatException e) {
             throw new GoofyException("A-hyuck, that doesn't look like a number to me! "
                     + "Usage: delete <task number>");
+        }
+    }
+
+    /**
+     * Parses a date command and returns the corresponding command.
+     *
+     * @param input User input string.
+     * @return FindOnDateCommand with the parsed date.
+     * @throws GoofyException If the date is missing or not in yyyy-MM-dd format.
+     */
+    private Command parseDate(String input) throws GoofyException {
+        if (input.trim().equalsIgnoreCase("date")) {
+            throw new GoofyException("A date with no date?! Give me something to work with! "
+                    + "Usage: date <yyyy-MM-dd>");
+        }
+        String dateString = input.substring(DATE_COMMAND_LENGTH).trim();
+        try {
+            LocalDate date = LocalDate.parse(dateString);
+            return new FindOnDateCommand(date);
+        } catch (DateTimeParseException e) {
+            throw new GoofyException("Gawrsh, I can't read that date! "
+                    + "Please use yyyy-MM-dd format, e.g. date 2019-12-01");
         }
     }
 }
