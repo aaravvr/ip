@@ -1,5 +1,6 @@
 package goofy;
 
+import goofy.command.Command;
 import goofy.exception.GoofyException;
 import goofy.storage.Storage;
 import goofy.ui.Parser;
@@ -40,28 +41,23 @@ public class Goofy {
     public void run() {
         ui.showWelcome();
         runCommandLoop();
-        ui.showGoodbye();
     }
 
     /**
      * Runs the main command loop that reads and processes user input.
      */
     private void runCommandLoop() {
-        while (true) {
-            String input = ui.readCommand();
-
-            if (input.equalsIgnoreCase("bye")) {
-                break;
-            }
-
+        boolean isExit = false;
+        while (!isExit) {
             try {
-                parser.parseCommand(input, tasks, ui);
-                storage.saveTasks(tasks.getTasks());
+                String input = ui.readCommand();
+                Command command = parser.parseCommand(input);
+                command.execute(tasks, ui, storage);
+                isExit = command.isExit();
             } catch (GoofyException e) {
                 ui.showError(e.getMessage());
             }
         }
-
         ui.closeScanner();
     }
 

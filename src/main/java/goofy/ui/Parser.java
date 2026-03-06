@@ -1,15 +1,20 @@
 package goofy.ui;
 
+import goofy.command.AddDeadlineCommand;
+import goofy.command.AddEventCommand;
+import goofy.command.AddTodoCommand;
+import goofy.command.Command;
+import goofy.command.DeleteCommand;
+import goofy.command.ExitCommand;
+import goofy.command.ListCommand;
+import goofy.command.MarkCommand;
+import goofy.command.UnmarkCommand;
 import goofy.exception.GoofyException;
-import goofy.task.Deadline;
-import goofy.task.Event;
-import goofy.task.Task;
-import goofy.task.Todo;
 
 /**
- * Parses user input and executes the corresponding commands.
- * Responsible for interpreting raw user input and delegating
- * to the appropriate task operations.
+ * Parses user input and returns the corresponding command.
+ * Responsible for interpreting raw user input and creating
+ * the appropriate Command object.
  */
 public class Parser {
     private static final int TODO_COMMAND_LENGTH = 5;
@@ -20,28 +25,29 @@ public class Parser {
     private static final int DELETE_COMMAND_LENGTH = 7;
 
     /**
-     * Parses and executes the given user input command.
+     * Parses the given user input and returns the corresponding command.
      *
      * @param input User input string.
-     * @param tasks TaskList to operate on.
-     * @param ui Ui instance for displaying results.
+     * @return Command corresponding to the user input.
      * @throws GoofyException If the command is invalid or input is malformed.
      */
-    public void parseCommand(String input, TaskList tasks, Ui ui) throws GoofyException {
-        if (input.equalsIgnoreCase("list")) {
-            ui.showTaskList(tasks.getTasks());
+    public Command parseCommand(String input) throws GoofyException {
+        if (input.equalsIgnoreCase("bye")) {
+            return new ExitCommand();
+        } else if (input.equalsIgnoreCase("list")) {
+            return new ListCommand();
         } else if (input.equalsIgnoreCase("mark") || input.startsWith("mark ")) {
-            parseMark(input, tasks, ui);
+            return parseMark(input);
         } else if (input.equalsIgnoreCase("unmark") || input.startsWith("unmark ")) {
-            parseUnmark(input, tasks, ui);
+            return parseUnmark(input);
         } else if (input.equalsIgnoreCase("delete") || input.startsWith("delete ")) {
-            parseDelete(input, tasks, ui);
+            return parseDelete(input);
         } else if (input.equalsIgnoreCase("todo") || input.startsWith("todo ")) {
-            parseTodo(input, tasks, ui);
+            return parseTodo(input);
         } else if (input.equalsIgnoreCase("deadline") || input.startsWith("deadline ")) {
-            parseDeadline(input, tasks, ui);
+            return parseDeadline(input);
         } else if (input.equalsIgnoreCase("event") || input.startsWith("event ")) {
-            parseEvent(input, tasks, ui);
+            return parseEvent(input);
         } else {
             throw new GoofyException("\"" + input + "\"?? A-hyuck, I have NO idea what that means! "
                     + "Try one of these instead: todo, deadline, event, list, mark, unmark, "
@@ -50,14 +56,13 @@ public class Parser {
     }
 
     /**
-     * Parses and executes a todo command.
+     * Parses a todo command and returns the corresponding command.
      *
      * @param input User input string.
-     * @param tasks TaskList to add the task to.
-     * @param ui Ui instance for displaying results.
+     * @return AddTodoCommand with the parsed description.
      * @throws GoofyException If the todo description is empty.
      */
-    private void parseTodo(String input, TaskList tasks, Ui ui) throws GoofyException {
+    private Command parseTodo(String input) throws GoofyException {
         if (input.trim().equalsIgnoreCase("todo")) {
             throw new GoofyException("Gawrsh, a todo with no name? Even I'm not that forgetful! "
                     + "Usage: todo <description>");
@@ -67,20 +72,17 @@ public class Parser {
             throw new GoofyException("Gawrsh, a todo with no name? Even I'm not that forgetful! "
                     + "Usage: todo <description>");
         }
-        Task task = new Todo(description);
-        tasks.addTask(task);
-        ui.showTaskAdded(task, tasks.getSize());
+        return new AddTodoCommand(description);
     }
 
     /**
-     * Parses and executes a deadline command.
+     * Parses a deadline command and returns the corresponding command.
      *
      * @param input User input string.
-     * @param tasks TaskList to add the task to.
-     * @param ui Ui instance for displaying results.
+     * @return AddDeadlineCommand with the parsed description and deadline.
      * @throws GoofyException If the format is invalid or fields are empty.
      */
-    private void parseDeadline(String input, TaskList tasks, Ui ui) throws GoofyException {
+    private Command parseDeadline(String input) throws GoofyException {
         if (input.trim().equalsIgnoreCase("deadline")) {
             throw new GoofyException("Whoa there! A deadline needs more info than that! "
                     + "Usage: deadline <description> /by <date>");
@@ -99,21 +101,17 @@ public class Parser {
             throw new GoofyException("Gawrsh, both a description AND a date are needed! "
                     + "Usage: deadline <description> /by <date>");
         }
-
-        Task task = new Deadline(description, by);
-        tasks.addTask(task);
-        ui.showTaskAdded(task, tasks.getSize());
+        return new AddDeadlineCommand(description, by);
     }
 
     /**
-     * Parses and executes an event command.
+     * Parses an event command and returns the corresponding command.
      *
      * @param input User input string.
-     * @param tasks TaskList to add the task to.
-     * @param ui Ui instance for displaying results.
+     * @return AddEventCommand with the parsed description and time range.
      * @throws GoofyException If the format is invalid or fields are empty.
      */
-    private void parseEvent(String input, TaskList tasks, Ui ui) throws GoofyException {
+    private Command parseEvent(String input) throws GoofyException {
         if (input.trim().equalsIgnoreCase("event")) {
             throw new GoofyException("An event with no details?! That's like a party with no snacks! "
                     + "Usage: event <description> /from <start> /to <end>");
@@ -134,29 +132,24 @@ public class Parser {
             throw new GoofyException("Gawrsh, ya can't leave any blanks! "
                     + "Usage: event <description> /from <start> /to <end>");
         }
-
-        Task task = new Event(description, from, to);
-        tasks.addTask(task);
-        ui.showTaskAdded(task, tasks.getSize());
+        return new AddEventCommand(description, from, to);
     }
 
     /**
-     * Parses and executes a mark command.
+     * Parses a mark command and returns the corresponding command.
      *
      * @param input User input string.
-     * @param tasks TaskList containing the task to mark.
-     * @param ui Ui instance for displaying results.
-     * @throws GoofyException If the task number is invalid.
+     * @return MarkCommand with the parsed task number.
+     * @throws GoofyException If the task number is missing or not a valid integer.
      */
-    private void parseMark(String input, TaskList tasks, Ui ui) throws GoofyException {
+    private Command parseMark(String input) throws GoofyException {
         if (input.trim().equalsIgnoreCase("mark")) {
             throw new GoofyException("Mark WHAT exactly?! Give me a number! "
                     + "Usage: mark <task number>");
         }
         try {
             int taskNumber = Integer.parseInt(input.substring(MARK_COMMAND_LENGTH).trim());
-            tasks.markTask(taskNumber);
-            ui.showTaskMarkedAsDone(tasks.getTask(taskNumber - 1));
+            return new MarkCommand(taskNumber);
         } catch (NumberFormatException e) {
             throw new GoofyException("A-hyuck, that doesn't look like a number to me! "
                     + "Usage: mark <task number>");
@@ -164,22 +157,20 @@ public class Parser {
     }
 
     /**
-     * Parses and executes an unmark command.
+     * Parses an unmark command and returns the corresponding command.
      *
      * @param input User input string.
-     * @param tasks TaskList containing the task to unmark.
-     * @param ui Ui instance for displaying results.
-     * @throws GoofyException If the task number is invalid.
+     * @return UnmarkCommand with the parsed task number.
+     * @throws GoofyException If the task number is missing or not a valid integer.
      */
-    private void parseUnmark(String input, TaskList tasks, Ui ui) throws GoofyException {
+    private Command parseUnmark(String input) throws GoofyException {
         if (input.trim().equalsIgnoreCase("unmark")) {
             throw new GoofyException("Unmark WHAT exactly?! Give me a number! "
                     + "Usage: unmark <task number>");
         }
         try {
             int taskNumber = Integer.parseInt(input.substring(UNMARK_COMMAND_LENGTH).trim());
-            tasks.unmarkTask(taskNumber);
-            ui.showTaskMarkedAsNotDone(tasks.getTask(taskNumber - 1));
+            return new UnmarkCommand(taskNumber);
         } catch (NumberFormatException e) {
             throw new GoofyException("A-hyuck, that doesn't look like a number to me! "
                     + "Usage: unmark <task number>");
@@ -187,22 +178,20 @@ public class Parser {
     }
 
     /**
-     * Parses and executes a delete command.
+     * Parses a delete command and returns the corresponding command.
      *
      * @param input User input string.
-     * @param tasks TaskList containing the task to delete.
-     * @param ui Ui instance for displaying results.
-     * @throws GoofyException If the task number is invalid.
+     * @return DeleteCommand with the parsed task number.
+     * @throws GoofyException If the task number is missing or not a valid integer.
      */
-    private void parseDelete(String input, TaskList tasks, Ui ui) throws GoofyException {
+    private Command parseDelete(String input) throws GoofyException {
         if (input.trim().equalsIgnoreCase("delete")) {
             throw new GoofyException("Delete WHAT exactly?! Give me a number! "
                     + "Usage: delete <task number>");
         }
         try {
             int taskNumber = Integer.parseInt(input.substring(DELETE_COMMAND_LENGTH).trim());
-            Task deletedTask = tasks.deleteTask(taskNumber);
-            ui.showTaskDeleted(deletedTask, tasks.getSize());
+            return new DeleteCommand(taskNumber);
         } catch (NumberFormatException e) {
             throw new GoofyException("A-hyuck, that doesn't look like a number to me! "
                     + "Usage: delete <task number>");
