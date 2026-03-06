@@ -157,6 +157,25 @@ public class Ui {
     }
 
     /**
+     * Displays all tasks matching a keyword search.
+     *
+     * @param tasks List of tasks matching the keyword.
+     */
+    public void showMatchingTasks(ArrayList<Task> tasks) {
+        System.out.println(INDENT + LINE);
+        if (tasks.isEmpty()) {
+            System.out.println(INDENT + "A-hyuck! I looked everywhere and found nothin'! "
+                    + "Try a different keyword, pal!");
+        } else {
+            System.out.println(INDENT + "Here are the matching tasks in your list:");
+            for (int i = 0; i < tasks.size(); i++) {
+                System.out.println(INDENT + (i + 1) + ". " + tasks.get(i));
+            }
+        }
+        System.out.println(INDENT + LINE);
+    }
+
+    /**
      * Displays all tasks occurring on the given date.
      *
      * @param tasks List of tasks matching the date.
