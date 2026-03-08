@@ -5,8 +5,8 @@ package goofy.task;
  * Tasks can be marked as done or not done.
  */
 public class Task {
-    protected String description;
-    protected boolean isDone;
+    private String description;
+    private boolean isDone;
 
     /**
      * Creates a new Task with the given description.

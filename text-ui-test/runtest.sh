@@ -12,8 +12,20 @@ then
     rm ACTUAL.TXT
 fi
 
+# delete saved data to ensure a clean test run
+if [ -e "../data/goofy.txt" ]
+then
+    rm ../data/goofy.txt
+fi
+
 # compile the code into the bin folder, terminates if error occurred
-if ! javac -cp ../src/main/java -Xlint:none -d ../bin ../src/main/java/goofy/*.java ../src/main/java/goofy/task/*.java
+if ! javac -cp ../src/main/java -Xlint:none -d ../bin \
+  ../src/main/java/goofy/*.java \
+  ../src/main/java/goofy/command/*.java \
+  ../src/main/java/goofy/exception/*.java \
+  ../src/main/java/goofy/storage/*.java \
+  ../src/main/java/goofy/task/*.java \
+  ../src/main/java/goofy/ui/*.java
 then
     echo "********** BUILD FAILURE **********"
     exit 1

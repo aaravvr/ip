@@ -15,8 +15,8 @@ public class Event extends Task {
 
     private LocalDate fromDate;
     private LocalDate toDate;
-    private String fromString;
-    private String toString;
+    private String fromStr;
+    private String toStr;
 
     /**
      * Creates a new Event task with the given description, start and end values.
@@ -31,17 +31,17 @@ public class Event extends Task {
         super(description);
         try {
             this.fromDate = LocalDate.parse(from, INPUT_FORMAT);
-            this.fromString = null;
+            this.fromStr = null;
         } catch (DateTimeParseException e) {
             this.fromDate = null;
-            this.fromString = from;
+            this.fromStr = from;
         }
         try {
             this.toDate = LocalDate.parse(to, INPUT_FORMAT);
-            this.toString = null;
+            this.toStr = null;
         } catch (DateTimeParseException e) {
             this.toDate = null;
-            this.toString = to;
+            this.toStr = to;
         }
     }
 
@@ -73,7 +73,7 @@ public class Event extends Task {
         if (fromDate != null) {
             return fromDate.format(INPUT_FORMAT);
         }
-        return fromString;
+        return fromStr;
     }
 
     /**
@@ -86,7 +86,7 @@ public class Event extends Task {
         if (toDate != null) {
             return toDate.format(INPUT_FORMAT);
         }
-        return toString;
+        return toStr;
     }
 
     /**
@@ -98,8 +98,8 @@ public class Event extends Task {
      */
     @Override
     public String toString() {
-        String fromDisplay = (fromDate != null) ? fromDate.format(OUTPUT_FORMAT) : fromString;
-        String toDisplay = (toDate != null) ? toDate.format(OUTPUT_FORMAT) : toString;
+        String fromDisplay = (fromDate != null) ? fromDate.format(OUTPUT_FORMAT) : fromStr;
+        String toDisplay = (toDate != null) ? toDate.format(OUTPUT_FORMAT) : toStr;
         return "[E]" + super.toString() + " (from: " + fromDisplay + " to: " + toDisplay + ")";
     }
 }
